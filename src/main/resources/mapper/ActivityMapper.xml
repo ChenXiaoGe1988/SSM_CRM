@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ckb.ssm.mapper.ActivityMapper">
+  <resultMap id="BaseResultMap" type="com.ckb.ssm.entity.Activity">
+    <id column="id" jdbcType="CHAR" property="id" />
+    <result column="owner" jdbcType="CHAR" property="owner" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="startDate" jdbcType="CHAR" property="startDate" />
+    <result column="endDate" jdbcType="CHAR" property="endDate" />
+    <result column="cost" jdbcType="VARCHAR" property="cost" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="createTime" jdbcType="CHAR" property="createTime" />
+    <result column="createBy" jdbcType="VARCHAR" property="createBy" />
+    <result column="editTime" jdbcType="CHAR" property="editTime" />
+    <result column="editBy" jdbcType="VARCHAR" property="editBy" />
+  </resultMap>
+  <update id="update">
+    update tbl_activity
+    set owner=#{owner},
+        name=#{name},
+        startDate=#{startDate},
+        endDate=#{endDate},
+        cost=#{cost},
+        description=#{description},
+        editTime=#{editTime},
+        editBy=#{editBy}
+    where id = #{id}
+  </update>
+  <delete id="delete">
+    delete from tbl_activity
+    where id in
+    <foreach collection="array" item="id" open="(" close=")" separator=",">
+      #{id}
+    </foreach>
+  </delete>
+  <select id="getActivityListByCondition" resultType="com.ckb.ssm.entity.Activity">
+    select
+    a.id,
+    a.name,
+    u.name as owner,
+    a.startDate,
+    a.endDate
+    from tbl_activity a
+    join tbl_user u
+    on a.owner=u.id
+
+    <where>
+      <if test="name!=null and name!=''">
+        a.name like '%' #{name} '%'
+      </if>
+      <if test="owner!=null and owner!=''">
+        and u.name like '%' #{owner} '%'
+      </if>
+      <if test="startDate!=null and startDate!=''">
+        and a.startDate &gt; #{startDate}
+      </if>
+      <if test="endDate!=null and endDate!=''">
+        and a.endDate &lt; #{endDate}
+      </if>
+    </where>
+
+
+    order by a.createTime desc
+    limit #{skipCount}, #{pageSize}
+
+  </select>
+  <select id="getTotalByCondition" resultType="int">
+    select count(*)
+    from tbl_activity a
+    join tbl_user u
+    on a.owner=u.id
+  </select>
+  <insert id="save">
+    insert into tbl_activity(
+      id,
+      owner,
+      name,
+      startDate,
+      endDate,
+      cost,
+      description,
+      createTime,
+      createBy
+    )
+    values (
+      #{id},
+      #{owner},
+      #{name},
+      #{startDate},
+      #{endDate},
+      #{cost},
+      #{description},
+      #{createTime},
+      #{createBy}
+           )
+  </insert>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, owner, name, startDate, endDate, cost, description, createTime, createBy, editTime, 
+    editBy
+  </sql>
+  <select id="selectByExample" parameterType="com.ckb.ssm.entity.ActivityExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from tbl_activity
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tbl_activity
+    where id = #{id,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from tbl_activity
+    where id = #{id,jdbcType=CHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.ckb.ssm.entity.ActivityExample">
+    delete from tbl_activity
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.ckb.ssm.entity.Activity">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.String">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into tbl_activity (owner, name, startDate, 
+      endDate, cost, description, 
+      createTime, createBy, editTime, 
+      editBy)
+    values (#{owner,jdbcType=CHAR}, #{name,jdbcType=VARCHAR}, #{startDate,jdbcType=CHAR}, 
+      #{endDate,jdbcType=CHAR}, #{cost,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=CHAR}, #{createBy,jdbcType=VARCHAR}, #{editTime,jdbcType=CHAR}, 
+      #{editBy,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ckb.ssm.entity.Activity">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.String">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into tbl_activity
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="owner != null">
+        owner,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="startDate != null">
+        startDate,
+      </if>
+      <if test="endDate != null">
+        endDate,
+      </if>
+      <if test="cost != null">
+        cost,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+      <if test="createTime != null">
+        createTime,
+      </if>
+      <if test="createBy != null">
+        createBy,
+      </if>
+      <if test="editTime != null">
+        editTime,
+      </if>
+      <if test="editBy != null">
+        editBy,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="owner != null">
+        #{owner,jdbcType=CHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="startDate != null">
+        #{startDate,jdbcType=CHAR},
+      </if>
+      <if test="endDate != null">
+        #{endDate,jdbcType=CHAR},
+      </if>
+      <if test="cost != null">
+        #{cost,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=CHAR},
+      </if>
+      <if test="createBy != null">
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="editTime != null">
+        #{editTime,jdbcType=CHAR},
+      </if>
+      <if test="editBy != null">
+        #{editBy,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.ckb.ssm.entity.ActivityExample" resultType="java.lang.Long">
+    select count(*) from tbl_activity
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update tbl_activity
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=CHAR},
+      </if>
+      <if test="record.owner != null">
+        owner = #{record.owner,jdbcType=CHAR},
+      </if>
+      <if test="record.name != null">
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.startDate != null">
+        startDate = #{record.startDate,jdbcType=CHAR},
+      </if>
+      <if test="record.endDate != null">
+        endDate = #{record.endDate,jdbcType=CHAR},
+      </if>
+      <if test="record.cost != null">
+        cost = #{record.cost,jdbcType=VARCHAR},
+      </if>
+      <if test="record.description != null">
+        description = #{record.description,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        createTime = #{record.createTime,jdbcType=CHAR},
+      </if>
+      <if test="record.createBy != null">
+        createBy = #{record.createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="record.editTime != null">
+        editTime = #{record.editTime,jdbcType=CHAR},
+      </if>
+      <if test="record.editBy != null">
+        editBy = #{record.editBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update tbl_activity
+    set id = #{record.id,jdbcType=CHAR},
+      owner = #{record.owner,jdbcType=CHAR},
+      name = #{record.name,jdbcType=VARCHAR},
+      startDate = #{record.startDate,jdbcType=CHAR},
+      endDate = #{record.endDate,jdbcType=CHAR},
+      cost = #{record.cost,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=VARCHAR},
+      createTime = #{record.createTime,jdbcType=CHAR},
+      createBy = #{record.createBy,jdbcType=VARCHAR},
+      editTime = #{record.editTime,jdbcType=CHAR},
+      editBy = #{record.editBy,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ckb.ssm.entity.Activity">
+    update tbl_activity
+    <set>
+      <if test="owner != null">
+        owner = #{owner,jdbcType=CHAR},
+      </if>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="startDate != null">
+        startDate = #{startDate,jdbcType=CHAR},
+      </if>
+      <if test="endDate != null">
+        endDate = #{endDate,jdbcType=CHAR},
+      </if>
+      <if test="cost != null">
+        cost = #{cost,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        createTime = #{createTime,jdbcType=CHAR},
+      </if>
+      <if test="createBy != null">
+        createBy = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="editTime != null">
+        editTime = #{editTime,jdbcType=CHAR},
+      </if>
+      <if test="editBy != null">
+        editBy = #{editBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ckb.ssm.entity.Activity">
+    update tbl_activity
+    set owner = #{owner,jdbcType=CHAR},
+      name = #{name,jdbcType=VARCHAR},
+      startDate = #{startDate,jdbcType=CHAR},
+      endDate = #{endDate,jdbcType=CHAR},
+      cost = #{cost,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      createTime = #{createTime,jdbcType=CHAR},
+      createBy = #{createBy,jdbcType=VARCHAR},
+      editTime = #{editTime,jdbcType=CHAR},
+      editBy = #{editBy,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=CHAR}
+  </update>
+</mapper>
